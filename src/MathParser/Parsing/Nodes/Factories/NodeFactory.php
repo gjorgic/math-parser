@@ -20,6 +20,12 @@ use MathParser\Parsing\Nodes\Factories\SubtractionNodeFactory;
 use MathParser\Parsing\Nodes\Factories\MultiplicationNodeFactory;
 use MathParser\Parsing\Nodes\Factories\DivisionNodeFactory;
 use MathParser\Parsing\Nodes\Factories\ExponentiationNodeFactory;
+use MathParser\Parsing\Nodes\Factories\LogicalGreaterThanEqualFactory;
+use MathParser\Parsing\Nodes\Factories\LogicalGreaterThanFactory;
+use MathParser\Parsing\Nodes\Factories\LogicalLowerThanEqualFactory;
+use MathParser\Parsing\Nodes\Factories\LogicalLowerThanFactory;
+use MathParser\Parsing\Nodes\Factories\LogicalEqualToFactory;
+use MathParser\Parsing\Nodes\Factories\LogicalNotEqualToFactory;
 use MathParser\Parsing\Nodes\Factories\UnaryMinusNodeFactory;
 use MathParser\Parsing\Nodes\ExpressionNode;
 
@@ -85,6 +91,15 @@ class NodeFactory {
         $this->multiplicationFactory = new MultiplicationNodeFactory();
         $this->divisionFactory = new DivisionNodeFactory();
         $this->exponentiationFactory = new ExponentiationNodeFactory();
+        $this->logicalOrFactory =  new LogicalOrNodeFactory();
+        $this->logicalAndFactory = new LogicalAndNodeFactory();
+
+        $this->logicalGreaterThanEqualFactory = new LogicalGreaterThanEqualFactory();
+        $this->logicalGreaterThanFactory = new LogicalGreaterThanFactory();
+        $this->logicalLowerThanEqualFactory = new LogicalLowerThanEqualFactory();
+        $this->logicalLowerThanFactory = new LogicalLowerThanFactory();
+        $this->logicalEqualToFactory = new LogicalEqualToFactory();
+        $this->logicalNotEqualToFactory = new LogicalNotEqualToFactory();
     }
 
     /**
@@ -152,6 +167,64 @@ class NodeFactory {
         return $this->exponentiationFactory->makeNode($leftOperand, $rightOperand);
     }
 
+
+    /**
+     * Create an logical OR node representing '$leftOperand OR $rightOperand'.
+     *
+     * @param mixed $leftOperand
+     * @param mixed $rightOperand
+     * @retval ExpressionNode
+     *
+     */
+    public function logicalOr($leftOperand, $rightOperand)
+    {
+        return $this->logicalOrFactory->makeNode($leftOperand, $rightOperand);
+    }
+
+    /**
+     * Create an logical AND node representing '$leftOperand AND $rightOperand'.
+     *
+     * @param mixed $leftOperand
+     * @param mixed $rightOperand
+     * @retval ExpressionNode
+     *
+     */
+    public function logicalAnd($leftOperand, $rightOperand)
+    {
+        return $this->logicalAndFactory->makeNode($leftOperand, $rightOperand);
+    }
+
+    public function logicalGreaterThanEqual($leftOperand, $rightOperand)
+    {
+        return $this->logicalGreaterThanEqualFactory->makeNode($leftOperand, $rightOperand);
+    }
+
+    public function logicalGreaterThan($leftOperand, $rightOperand)
+    {
+        return $this->logicalGreaterThanFactory->makeNode($leftOperand, $rightOperand);
+    }
+
+    public function logicalLowerThanEqual($leftOperand, $rightOperand)
+    {
+        return $this->logicalLowerThanEqualFactory->makeNode($leftOperand, $rightOperand);
+    }
+
+    public function logicalLowerThan($leftOperand, $rightOperand)
+    {
+        return $this->logicalLowerThanFactory->makeNode($leftOperand, $rightOperand);
+    }
+
+    public function logicalEqualTo($leftOperand, $rightOperand)
+    {
+        return $this->logicalEqualToFactory->makeNode($leftOperand, $rightOperand);
+    }
+
+    public function logicalNotEqualTo($leftOperand, $rightOperand)
+    {
+        return $this->logicalNotEqualToFactory->makeNode($leftOperand, $rightOperand);
+    }
+
+
     /**
      * Create a unary minus node representing '-$operand'.
      *
@@ -178,6 +251,14 @@ class NodeFactory {
             case '*': return $this->multiplication($node->getLeft(), $node->getRight());
             case '/': return $this->division($node->getLeft(), $node->getRight());
             case '^': return $this->exponentiation($node->getLeft(), $node->getRight());
+            case 'OR': return $this->logicalOr($node->getLeft(), $node->getRight());
+            case 'AND': return $this->logicalAnd($node->getLeft(), $node->getRight());
+            case '>=': return $this->logicalGreaterThanEqual($node->getLeft(), $node->getRight());
+            case '>': return $this->logicalGreaterThan($node->getLeft(), $node->getRight());
+            case '<=': return $this->logicalLowerThanEqual($node->getLeft(), $node->getRight());
+            case '<': return $this->logicalLowerThan($node->getLeft(), $node->getRight());
+            case '=': return $this->logicalEqualTo($node->getLeft(), $node->getRight());
+            case '!=': return $this->logicalNotEqualTo($node->getLeft(), $node->getRight());
         }
     }
 

@@ -106,11 +106,21 @@ abstract class Node implements Visitable
             case TokenType::Constant:
                 return new ConstantNode($token->getValue());
 
+            case TokenType::ArgumentDivider:
+                return new ArgumentDividerNode($token->getValue());
+
             case TokenType::FunctionName:
                 return new FunctionNode($token->getValue(), null);
             case TokenType::OpenParenthesis:
                 return new SubExpressionNode($token->getValue());
 
+            case TokenType::LogicalGreaterThanEqual:
+            case TokenType::LogicalGreaterThan:
+            case TokenType::LogicalLowerThanEqual:
+            case TokenType::LogicalLowerThan:
+            case TokenType::LogicalEqualTo:
+            case TokenType::LogicalNotEqualTo:
+            case TokenType::LogicalOrOperator:
             case TokenType::AdditionOperator:
             case TokenType::SubtractionOperator:
             case TokenType::MultiplicationOperator:

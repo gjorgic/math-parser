@@ -50,6 +50,15 @@ final class TokenType
     /** Token representing a closing parenthesis, i.e. ')' */
     const CloseParenthesis = 32;
 
+    const LogicalGreaterThanEqual = 84;
+    const LogicalGreaterThan = 85;
+    const LogicalLowerThanEqual = 86;
+    const LogicalLowerThan = 87;
+    const LogicalEqualTo = 88;
+    const LogicalNotEqualTo = 89;
+    const LogicalOrOperator = 90;
+    const LogicalAndOperator = 91;
+
     /** Token representing a unary minus. Not used. This is the responsibility of the Parser */
     const UnaryMinus = 99;
     /** Token representing '+' */
@@ -72,6 +81,8 @@ final class TokenType
 
     /** Token represented a known constant, e.g. 'pi' */
     const Constant = 300;
+
+    const ArgumentDivider = 997;
 
     /** Token representing a terminator, e.g. ';'. Currently not used. */
     const Terminator = 998;

@@ -38,6 +38,8 @@ use MathParser\Exceptions\SyntaxErrorException;
 use MathParser\Exceptions\ParenthesisMismatchException;
 
 use MathParser\Interpreting\PrettyPrinter;
+use MathParser\Parsing\Nodes\ArgumentDividerNode;
+use MathParser\Parsing\Nodes\FunctionArgumentsNode;
 
 /**
 * Mathematical expression parser, based on the shunting yard algorithm.
@@ -120,6 +122,7 @@ class Parser
 
         $this->tokens = $tokens;
 
+
         // Perform the actual parsing
         return $this->shuntingYard($tokens);
     }
@@ -171,6 +174,10 @@ class Parser
                 $this->operatorStack->push($node);
 
             } elseif ($node instanceof SubExpressionNode) {
+                $this->operatorStack->push($node);
+
+                // Handle the remaining operators.
+            } elseif ($node instanceof ArgumentDividerNode) {
                 $this->operatorStack->push($node);
 
                 // Handle the remaining operators.
@@ -273,6 +280,7 @@ class Parser
         $right = $this->operandStack->pop();
         $left = $this->operandStack->pop();
         if ($right === null || $left === null) {
+            dd($node);
             throw new SyntaxErrorException();
         }
 
@@ -416,6 +424,7 @@ class Parser
     {
         // Flag, checking for mismatching parentheses
         $clean = false;
+        $operands = [];
 
         // Pop operators off the operatorStack until its empty, or
         // we find an opening parenthesis, building subexpressions
@@ -428,9 +437,13 @@ class Parser
                 break;
             }
 
-            $node = $this->handleExpression($popped);
-            $this->operandStack->push($node);
+            if (!$popped instanceof ArgumentDividerNode) {
+                $node = $this->handleExpression($popped);
+                $this->operandStack->push($node);
+                continue;
+            }
 
+            array_unshift($operands, $this->operandStack->pop());
         }
 
         // Throw an error if the parenthesis couldn't be matched
@@ -445,8 +458,8 @@ class Parser
         $previous = $this->operatorStack->peek();
         if ($previous instanceof FunctionNode) {
             $node = $this->operatorStack->pop();
-            $operand = $this->operandStack->pop();
-            $node->setOperand($operand);
+            array_unshift($operands, $this->operandStack->pop());
+            $node->setOperand(new FunctionArgumentsNode($operands));
             $this->operandStack->push($node);
         }
     }

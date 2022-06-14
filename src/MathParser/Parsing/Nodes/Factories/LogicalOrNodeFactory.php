@@ -26,7 +26,7 @@ use MathParser\Parsing\Nodes\Traits\Numeric;
 * Some basic simplification is applied to the resulting Node.
 *
 */
-class AdditionNodeFactory implements ExpressionNodeFactory
+class LogicalOrNodeFactory implements ExpressionNodeFactory
 {
     use Sanitize;
     use Numeric;
@@ -55,7 +55,7 @@ class AdditionNodeFactory implements ExpressionNodeFactory
         $node = $this->numericTerms($leftOperand, $rightOperand);
         if ($node) return $node;
 
-        return new ExpressionNode($leftOperand, '+', $rightOperand);
+        return new ExpressionNode($leftOperand, 'OR', $rightOperand);
     }
 
     /** Simplify addition node when operands are numeric
@@ -66,31 +66,10 @@ class AdditionNodeFactory implements ExpressionNodeFactory
     */
     protected function numericTerms($leftOperand, $rightOperand)
     {
-        if ($this->isNumeric($leftOperand) && $leftOperand->getValue() == 0){
-            return $rightOperand;
+        if ($this->isNumeric($leftOperand) && $this->isNumeric($rightOperand)) {
+            $true = !!$leftOperand->getValue() || !!$rightOperand->getValue();
+            return new IntegerNode($true ? 1 : 0);
         }
-        if ($this->isNumeric($rightOperand) && $rightOperand->getValue() == 0){
-            return $leftOperand;
-        }
-
-        if (!$this->isNumeric($leftOperand) || !$this->isNumeric($rightOperand)) {
-            return null;
-        }
-        $type = $this->resultingType($leftOperand, $rightOperand);
-
-        switch($type) {
-            case Node::NumericFloat:
-            return new NumberNode($leftOperand->getValue() + $rightOperand->getValue());
-
-            case Node::NumericRational:
-            $p = $leftOperand->getNumerator() * $rightOperand->getDenominator() + $leftOperand->getDenominator() * $rightOperand->getNumerator();
-            $q = $leftOperand->getDenominator() * $rightOperand->getDenominator();
-            return new RationalNode($p, $q);
-
-            case Node::NumericInteger:
-            return new IntegerNode($leftOperand->getValue() + $rightOperand->getValue());
-        }
-
 
         return null;
     }
