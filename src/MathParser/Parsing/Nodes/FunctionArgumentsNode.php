@@ -40,10 +40,31 @@ class FunctionArgumentsNode extends Node
     {
         $inner = [];
         foreach ($this->value as $node) {
-            $inner[] = $node->accept($visitor);
+            $item = $node->accept($visitor);
+            if ($item instanceof FunctionNode) {
+                $item = $this->quote($item, $visitor);
+            }
+            $inner[] = $item;
         }
 
         return $inner;
+    }
+
+    protected function quote(FunctionNode $node, Visitor $visitor)
+    {
+        return function ($offset) use ($node, $visitor) {
+            $newNode = new FunctionNode(
+                $node->getName(),
+                $node->getOperand(),
+                $node->getToken()
+            );
+
+            $newNode->setSkipExecution(true);
+
+            $item = $newNode->accept($visitor);
+
+            return call_user_func_array($item, func_get_args());
+        };
     }
 
     /** Implementing the compareTo abstract method. */

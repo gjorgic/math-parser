@@ -59,7 +59,7 @@ abstract class Node implements Visitable
                 return new ConstantNode($token->getValue());
 
             case TokenType::FunctionName:
-                return new FunctionNode($token->getValue(), null);
+                return new FunctionNode($token->getValue(), new FunctionArgumentsNode([]), $token);
             case TokenType::OpenParenthesis:
                 return new SubExpressionNode($token->getValue());
 
@@ -110,7 +110,7 @@ abstract class Node implements Visitable
                 return new ArgumentDividerNode($token->getValue());
 
             case TokenType::FunctionName:
-                return new FunctionNode($token->getValue(), null);
+                return new FunctionNode($token->getValue(), new FunctionArgumentsNode([]), $token);
             case TokenType::OpenParenthesis:
                 return new SubExpressionNode($token->getValue());
 

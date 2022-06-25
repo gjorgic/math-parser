@@ -39,6 +39,7 @@ use MathParser\Exceptions\ParenthesisMismatchException;
 
 use MathParser\Interpreting\PrettyPrinter;
 use MathParser\Parsing\Nodes\ArgumentDividerNode;
+use MathParser\Parsing\Nodes\ClosureNode;
 use MathParser\Parsing\Nodes\FunctionArgumentsNode;
 
 /**
@@ -188,6 +189,14 @@ class Parser
 
             } elseif ($node instanceof ExpressionNode) {
 
+                if ($lastNode instanceof FunctionNode) {
+                    $operator = $this->operatorStack->pop();
+
+                    // $this->operatorStack
+
+                    $this->operandStack->push($operator);
+                }
+
                 // Check for unary minus and unary plus.
                 $unary = $this->isUnary($node, $lastNode);
 
@@ -213,7 +222,10 @@ class Parser
                     }
                 }
 
-                if ($node) $this->operatorStack->push($node);
+                if ($node) {
+                    $this->operatorStack->push($node);
+                }
+
             }
 
             // Remember the current token (if it hasn't been nulled, for example being a unary +)
@@ -247,7 +259,10 @@ class Parser
     */
     protected function handleExpression($node)
     {
-        if ($node instanceof FunctionNode) throw new ParenthesisMismatchException($node->getOperator());
+        if ($node instanceof FunctionNode) {
+            return new ClosureNode($node);
+        }
+
         if ($node instanceof SubExpressionNode) throw new ParenthesisMismatchException($node->getOperator());
 
         if (!$this->simplifyingParser) return $this->naiveHandleExpression($node);
@@ -280,7 +295,6 @@ class Parser
         $right = $this->operandStack->pop();
         $left = $this->operandStack->pop();
         if ($right === null || $left === null) {
-            dd($node);
             throw new SyntaxErrorException();
         }
 
@@ -458,7 +472,9 @@ class Parser
         $previous = $this->operatorStack->peek();
         if ($previous instanceof FunctionNode) {
             $node = $this->operatorStack->pop();
-            array_unshift($operands, $this->operandStack->pop());
+            if ($this->operandStack->count()) {
+                array_unshift($operands, $this->operandStack->pop());
+            }
             $node->setOperand(new FunctionArgumentsNode($operands));
             $this->operandStack->push($node);
         }

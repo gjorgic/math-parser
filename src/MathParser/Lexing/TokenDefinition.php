@@ -93,5 +93,4 @@ class TokenDefinition
 
         return new Token($value, $this->tokenType, $match[0]);
     }
-
 }

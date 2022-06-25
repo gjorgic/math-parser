@@ -10,6 +10,7 @@
 namespace MathParser\Parsing\Nodes;
 
 use MathParser\Interpreting\Visitors\Visitor;
+use MathParser\Lexing\Token;
 
 /**
  * AST node representing a function applications (e.g. sin(...))
@@ -21,10 +22,15 @@ class FunctionNode extends Node
     /** Node $operand AST of function operand */
     private $operand;
 
+    private $token;
+
+    protected $skipExecution = false;
+
     /** Constructor, create a FunctionNode with given name and operand */
-    function __construct($name, $operand)
+    function __construct($name, $operand, Token $token)
     {
         $this->name = $name;
+        $this->token = $token;
         if (is_int($operand)) $operand = new NumberNode($operand);
         $this->operand = $operand;
     }
@@ -56,6 +62,11 @@ class FunctionNode extends Node
         return $this->operand = $operand;
     }
 
+    public function getToken()
+    {
+        return $this->token;
+    }
+
     public function getOperator()
     {
         return $this->name;
@@ -67,6 +78,16 @@ class FunctionNode extends Node
     public function accept(Visitor $visitor)
     {
         return $visitor->visitFunctionNode($this);
+    }
+
+    public function setSkipExecution($skip)
+    {
+        $this->skipExecution = $skip;
+    }
+
+    public function getSkipExecution()
+    {
+        return $this->skipExecution;
     }
 
     /** Implementing the compareTo abstract method. */
