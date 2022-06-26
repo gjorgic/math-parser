@@ -17,6 +17,7 @@ namespace MathParser\Parsing\Nodes;
 use MathParser\Interpreting\ASCIIPrinter;
 use MathParser\Interpreting\Evaluator;
 use MathParser\Interpreting\Visitors\Visitable;
+use MathParser\Lexing\CustomExpressionToken;
 use MathParser\Lexing\Token;
 use MathParser\Lexing\TokenType;
 
@@ -91,6 +92,10 @@ abstract class Node implements Visitable
      */
     public static function factory(Token $token)
     {
+        if ($token instanceof CustomExpressionToken) {
+            return $token->makeNode();
+        }
+
         switch ($token->getType()) {
             case TokenType::PosInt:
             case TokenType::Integer:

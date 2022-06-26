@@ -11,6 +11,7 @@ namespace MathParser\Parsing\Nodes;
 
 use MathParser\Interpreting\Visitors\Visitor;
 use MathParser\Exceptions\UnknownOperatorException;
+use MathParser\Lexing\CustomExpressionToken;
 
 use MathParser\Parsing\Nodes\Traits\Sanitize;
 
@@ -29,6 +30,11 @@ class ExpressionNode extends Node
     private $operator;
     /** Node $right Right operand **/
     private $right;
+
+    /**
+     * @var null|CustomExpressionToken
+     */
+    protected $token;
 
     /** int $precedence Precedence. Operators with higher prcedence bind harder **/
     private $precedence;
@@ -59,11 +65,12 @@ class ExpressionNode extends Node
      * @param Node|null|int|float $right Second operand
      *
      */
-    function __construct($left, $operator = null, $right = null)
+    function __construct($left, $operator = null, $right = null, ?CustomExpressionToken $token = null)
     {
         $this->left = $this->sanitize($left);
         $this->operator = $operator;
         $this->right = $this->sanitize($right);
+        $this->token = $token;
 
         switch($operator) {
             case '+':
@@ -135,9 +142,6 @@ class ExpressionNode extends Node
                 $this->precedence = 7;
                 $this->associativity = self::LEFT_ASSOC;
                 break;
-
-            default:
-                throw new UnknownOperatorException($operator);
         }
     }
 
@@ -159,6 +163,16 @@ class ExpressionNode extends Node
     public function setLeft($operand)
     {
         $this->left = $operand;
+    }
+
+    public function getToken(): ?CustomExpressionToken
+    {
+        return $this->token;
+    }
+
+    public function setToken(CustomExpressionToken $token)
+    {
+        $this->token = $token;
     }
 
     /**
@@ -209,6 +223,21 @@ class ExpressionNode extends Node
     public function getPrecedence()
     {
         return $this->precedence;
+    }
+
+    /**
+     * Return the precedence of the ExpressionNode.
+     *
+     * @retval int precedence
+     */
+    public function setPrecedence($precedence)
+    {
+        $this->precedence = $precedence;
+    }
+
+    public function setAssociativity($associativity)
+    {
+        $this->associativity = $associativity;
     }
 
     /**

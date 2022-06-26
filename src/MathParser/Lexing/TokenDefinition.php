@@ -11,6 +11,7 @@
 namespace MathParser\Lexing;
 
 use MathParser\Lexing\TokenAssociativity;
+use ReflectionClass;
 
 /**
  * Token definitions using regular expressions to match input
@@ -90,6 +91,11 @@ class TokenDefinition
             return null;
 
         if ($this->value) $value = $this->value;
+
+        if (is_string($this->tokenType) && class_exists($this->tokenType)) {
+            $reflection = new ReflectionClass($this->tokenType);
+            return $reflection->newInstance($value, $match[0]);
+        }
 
         return new Token($value, $this->tokenType, $match[0]);
     }

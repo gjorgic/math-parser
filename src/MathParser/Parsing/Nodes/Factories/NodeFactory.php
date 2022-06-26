@@ -15,6 +15,7 @@
  */
 namespace MathParser\Parsing\Nodes\Factories;
 
+use MathParser\Lexing\CustomExpressionToken;
 use MathParser\Parsing\Nodes\Factories\AdditionNodeFactory;
 use MathParser\Parsing\Nodes\Factories\SubtractionNodeFactory;
 use MathParser\Parsing\Nodes\Factories\MultiplicationNodeFactory;
@@ -245,6 +246,16 @@ class NodeFactory {
      */
     public function simplify(ExpressionNode $node)
     {
+        if ($node->getToken() instanceof CustomExpressionToken) {
+            $newNode = $node->getToken()->simplify($node->getLeft(), $node->getRight());
+
+            if ($newNode instanceof ExpressionNode) {
+                $newNode->setToken($node->getToken());
+            }
+
+            return $newNode;
+        }
+
         switch($node->getOperator()) {
             case '+': return $this->addition($node->getLeft(), $node->getRight());
             case '-': return $this->subtraction($node->getLeft(), $node->getRight());
