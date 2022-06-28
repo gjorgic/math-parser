@@ -172,8 +172,11 @@ class Parser
 
                 // Push function applications or open parentheses `(` onto the operatorStack
             } elseif ($node instanceof FunctionNode) {
-                $this->operatorStack->push($node);
-
+                if ($lastNode instanceof ExpressionNode && (empty($tokens[$index + 1]) || $tokens[$index + 1]->getType() != TokenType::OpenParenthesis)) {
+                    $this->operandStack->push($node);
+                } else {
+                    $this->operatorStack->push($node);
+                }
             } elseif ($node instanceof SubExpressionNode) {
                 $this->operatorStack->push($node);
 
@@ -189,7 +192,7 @@ class Parser
 
             } elseif ($node instanceof ExpressionNode) {
 
-                if ($lastNode instanceof FunctionNode) {
+                if ($lastNode instanceof FunctionNode && $this->operatorStack->peek()->compareTo($lastNode)) {
                     $operator = $this->operatorStack->pop();
 
                     // $this->operatorStack
@@ -476,6 +479,9 @@ class Parser
                 array_unshift($operands, $this->operandStack->pop());
             }
             $node->setOperand(new FunctionArgumentsNode($operands));
+            $this->operandStack->push($node);
+        } else {
+            $node = new SubExpressionNode($this->operandStack->pop());
             $this->operandStack->push($node);
         }
     }
