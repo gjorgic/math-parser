@@ -106,6 +106,8 @@ abstract class Node implements Visitable
                 $x = floatval(str_replace(',', '.', $token->getValue()));
 
                 return new NumberNode($x);
+            case TokenType::Boolean:
+                return new BooleanNode(filter_var($token->getValue(), FILTER_VALIDATE_BOOLEAN));
             case TokenType::Identifier:
                 return new VariableNode($token->getValue());
             case TokenType::Constant:

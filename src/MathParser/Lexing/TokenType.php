@@ -43,6 +43,8 @@ final class TokenType
     /** Token representing a floating point number */
     const RealNumber = 3;
 
+    const Boolean = 6;
+
     /** Token representing an identifier, i.e. a variable name. */
     const Identifier = 20;
     /** Token representing an opening parenthesis, i.e. '(' */

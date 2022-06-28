@@ -9,16 +9,12 @@
 
 namespace MathParser\Parsing\Nodes\Factories;
 
+use MathParser\Parsing\Nodes\BooleanNode;
 use MathParser\Parsing\Nodes\Interfaces\ExpressionNodeFactory;
-
 use MathParser\Parsing\Nodes\Node;
-use MathParser\Parsing\Nodes\NumberNode;
-use MathParser\Parsing\Nodes\IntegerNode;
-use MathParser\Parsing\Nodes\RationalNode;
-
 use MathParser\Parsing\Nodes\ExpressionNode;
-use MathParser\Parsing\Nodes\Traits\Sanitize;
-use MathParser\Parsing\Nodes\Traits\Numeric;
+use MathParser\Parsing\Nodes\Traits\Boolean\Sanitize;
+use MathParser\Parsing\Nodes\Traits\Boolean\Boolean;
 
 /**
 * Factory for creating an ExpressionNode representing '+'.
@@ -29,24 +25,16 @@ use MathParser\Parsing\Nodes\Traits\Numeric;
 class LogicalOrNodeFactory implements ExpressionNodeFactory
 {
     use Sanitize;
-    use Numeric;
+    use Boolean;
 
     /**
-    * Create a Node representing 'leftOperand + rightOperand'
-    *
-    * Using some simplification rules, create a NumberNode or ExpressionNode
-    * giving an AST correctly representing 'leftOperand + rightOperand'.
-    *
-    * ### Simplification rules:
-    *
-    * - To simplify the use of the function, convert integer or float params to NumberNodes
-    * - If $leftOperand and $rightOperand are both NumberNodes, return a single NumberNode containing their sum
-    * - If $leftOperand or $rightOperand are NumberNodes representing 0, return the other term unchanged
-    *
-    * @param Node|int $leftOperand First term
-    * @param Node|int $rightOperand Second term
-    * @retval Node
-    */
+     * Create a Node representing 'leftOperand OR rightOperand'
+     *
+     * @param Node|int $leftOperand First term
+     * @param Node|int $rightOperand Second term
+     *
+     * @return Node
+     **/
     public function makeNode($leftOperand, $rightOperand)
     {
         $leftOperand = $this->sanitize($leftOperand);
@@ -59,16 +47,17 @@ class LogicalOrNodeFactory implements ExpressionNodeFactory
     }
 
     /** Simplify addition node when operands are numeric
-    *
-    * @param Node $leftOperand
-    * @param Node $rightOperand
-    * @retval Node|null
-    */
+     *
+     * @param Node $leftOperand
+     * @param Node $rightOperand
+     *
+     * @return Node|null
+     */
     protected function numericTerms($leftOperand, $rightOperand)
     {
-        if ($this->isNumeric($leftOperand) && $this->isNumeric($rightOperand)) {
-            $true = !!$leftOperand->getValue() || !!$rightOperand->getValue();
-            return new IntegerNode($true ? 1 : 0);
+        if ($this->isBoolean($leftOperand) && $this->isBoolean($rightOperand)) {
+            $value = $leftOperand->getValue() || $rightOperand->getValue();
+            return new BooleanNode($value);
         }
 
         return null;

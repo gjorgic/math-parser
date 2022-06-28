@@ -2,19 +2,20 @@
 
 namespace MathParser\Parsing\Nodes\Factories;
 
+use MathParser\Parsing\Nodes\BooleanNode;
 use MathParser\Parsing\Nodes\Interfaces\ExpressionNodeFactory;
 
 use MathParser\Parsing\Nodes\Node;
 use MathParser\Parsing\Nodes\IntegerNode;
 
 use MathParser\Parsing\Nodes\ExpressionNode;
-use MathParser\Parsing\Nodes\Traits\Sanitize;
-use MathParser\Parsing\Nodes\Traits\Numeric;
+use MathParser\Parsing\Nodes\Traits\Boolean\Sanitize;
+use MathParser\Parsing\Nodes\Traits\Boolean\Boolean;
 
 class LogicalEqualToFactory implements ExpressionNodeFactory
 {
     use Sanitize;
-    use Numeric;
+    use Boolean;
 
     /**
      * @param Node|int $leftOperand First factor
@@ -43,9 +44,9 @@ class LogicalEqualToFactory implements ExpressionNodeFactory
     **/
     private function numericFactors($leftOperand, $rightOperand)
     {
-        if ($this->isNumeric($leftOperand) && $this->isNumeric($rightOperand)) {
-            $true = $leftOperand->getValue() == $rightOperand->getValue();
-            return new IntegerNode($true ? 1 : 0);
+        if ($this->isBoolean($leftOperand) && $this->isBoolean($rightOperand)) {
+            $value = $leftOperand->getValue() == $rightOperand->getValue();
+            return new BooleanNode($value);
         }
 
         return null;
