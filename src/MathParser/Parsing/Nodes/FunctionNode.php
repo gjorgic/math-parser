@@ -26,6 +26,8 @@ class FunctionNode extends Node
 
     protected $skipExecution = false;
 
+    protected $prevInstance;
+
     /** Constructor, create a FunctionNode with given name and operand */
     function __construct($name, $operand, Token $token)
     {
@@ -104,6 +106,21 @@ class FunctionNode extends Node
         $otherOperand = $other->getOperand();
 
         return $this->getName() == $other->getName() && $thisOperand->compareTo($otherOperand);
+    }
+
+    public function hasPrevInstance()
+    {
+        return $this->prevInstance != null;
+    }
+
+    public function getPrevInstance()
+    {
+        return $this->prevInstance;
+    }
+
+    public function setPrevInstance($prevInstance)
+    {
+        $this->prevInstance = $prevInstance;
     }
 
 }
