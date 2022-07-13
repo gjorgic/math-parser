@@ -46,7 +46,11 @@ class SubExpressionNode extends Node
      */
     public function accept(Visitor $visitor)
     {
-        return $this->value;
+        if (!$this->value instanceof Node) {
+            return $this->value;
+        }
+
+        return $this->value->accept($visitor);
     }
 
     /** Implementing the compareTo abstract method. */
