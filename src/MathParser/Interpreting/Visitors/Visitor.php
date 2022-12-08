@@ -19,6 +19,7 @@ use MathParser\Parsing\Nodes\NumberNode;
 use MathParser\Parsing\Nodes\VariableNode;
 use MathParser\Parsing\Nodes\FunctionNode;
 use MathParser\Parsing\Nodes\ConstantNode;
+use MathParser\Parsing\Nodes\HigherOrderFunctionNode;
 use MathParser\Parsing\Nodes\IntegerNode;
 use MathParser\Parsing\Nodes\RationalNode;
 
@@ -72,6 +73,13 @@ interface Visitor
      * @param FunctionNode $node Node to visit.
      **/
     function visitFunctionNode(FunctionNode $node);
+
+    /**
+     * Interface function for visiting HighOrderFunctionNode
+     *
+     * @param HigherOrderFunctionNode $node
+     */
+    function visitHighOrderFunctionNode(HigherOrderFunctionNode $node);
 
     /**
      * Interface function for visiting ConstantNode

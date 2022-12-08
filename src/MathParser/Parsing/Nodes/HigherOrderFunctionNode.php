@@ -1,21 +1,12 @@
 <?php
-/*
- * @package     Parsing
- * @author      Frank Wikström <frank@mossadal.se>
- * @copyright   2015 Frank Wikström
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- *
- */
+
 
 namespace MathParser\Parsing\Nodes;
 
 use MathParser\Interpreting\Visitors\Visitor;
 use MathParser\Lexing\Token;
 
-/**
- * AST node representing a function applications (e.g. sin(...))
- */
-class FunctionNode extends Node
+class HigherOrderFunctionNode extends FunctionNode
 {
     /** string $name Function name, e.g. 'sin' */
     private $name;
@@ -79,26 +70,15 @@ class FunctionNode extends Node
      */
     public function accept(Visitor $visitor)
     {
-        return $visitor->visitFunctionNode($this);
+        return $visitor->visitHighOrderFunctionNode($this);
     }
 
-    public function setSkipExecution($skip)
-    {
-        $this->skipExecution = $skip;
-    }
-
-    public function getSkipExecution()
-    {
-        return $this->skipExecution;
-    }
-
-    /** Implementing the compareTo abstract method. */
     public function compareTo($other)
     {
         if ($other === null) {
             return false;
         }
-        if (!($other instanceof FunctionNode)) {
+        if (!($other instanceof HigherOrderFunctionNode)) {
             return false;
         }
 
@@ -107,20 +87,4 @@ class FunctionNode extends Node
 
         return $this->getName() == $other->getName() && $thisOperand->compareTo($otherOperand);
     }
-
-    public function hasPrevInstance()
-    {
-        return $this->prevInstance != null;
-    }
-
-    public function getPrevInstance()
-    {
-        return $this->prevInstance;
-    }
-
-    public function setPrevInstance($prevInstance)
-    {
-        $this->prevInstance = $prevInstance;
-    }
-
 }

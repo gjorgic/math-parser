@@ -118,6 +118,8 @@ abstract class Node implements Visitable
 
             case TokenType::FunctionName:
                 return new FunctionNode($token->getValue(), new FunctionArgumentsNode([]), $token);
+            case TokenType::HighOrderFunctionName:
+                return new HigherOrderFunctionNode($token->getValue(), new FunctionArgumentsNode([]), $token);
             case TokenType::OpenParenthesis:
                 return new SubExpressionNode($token->getValue());
 

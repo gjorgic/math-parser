@@ -191,11 +191,12 @@ class Parser
                 $this->operandStack->push(new FunctionNode($node->getOperator(), $op));
 
             } elseif ($node instanceof ExpressionNode) {
-
-                if ($lastNode instanceof FunctionNode && $this->operatorStack->peek()->compareTo($lastNode)) {
+                // Znači ako se prije ovoga zatvorila zagrada od funkcije, otišli smo u drugu metodu napraviti funkciju sa argumentima
+                // Ondje se nakon zabršetka ta funkcija miče iz operatora i prebacijue u operand
+                // Problem možda može nastupiti ako u operator stacku postoji još jedan unos tipa funkcije
+                // Tada bi on greškom bio skinut, možda koristiti dodatnu varijablu da znamo odakle smo došli????
+                if ($lastNode instanceof FunctionNode && $this->operatorStack->peek() && $this->operatorStack->peek()->compareTo($lastNode)) {
                     $operator = $this->operatorStack->pop();
-
-                    // $this->operatorStack
 
                     $this->operandStack->push($operator);
                 }
@@ -454,6 +455,10 @@ class Parser
                 break;
             }
 
+            // On ovdje nebi smio izvršavati (raditi simplify) ako je prethodno pokrenut/otvoren Argument divider
+            // Znači ako je posljednji item argument divider, onda sve trebamo trpati na stock as is
+
+            // MOžda ima smisla da možeš raditi simplify samo ako oba operanda nisu funkcije
             if (!$popped instanceof ArgumentDividerNode) {
                 $node = $this->handleExpression($popped);
                 $this->operandStack->push($node);

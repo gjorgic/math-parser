@@ -3,6 +3,8 @@
 namespace MathParser\Parsing\Nodes;
 
 use MathParser\Interpreting\Visitors\Visitor;
+use MathParser\Classes\ClosureHelper;
+use MathParser\Classes\ExpressionWrapper;
 
 class FunctionArgumentsNode extends Node
 {
@@ -40,31 +42,56 @@ class FunctionArgumentsNode extends Node
     {
         $inner = [];
         foreach ($this->value as $node) {
+            if ($node instanceof ExpressionNode) {
+                $this->skipExecutionForFunctions($node);
+            }
+
             $item = $node->accept($visitor);
             if ($item instanceof FunctionNode) {
-                $item = $this->quote($item, $visitor);
+                $item = $this->quoteFunction($item, $visitor);
             }
+
             $inner[] = $item;
         }
 
         return $inner;
     }
 
-    protected function quote(FunctionNode $node, Visitor $visitor)
+    protected function quoteFunction(FunctionNode $node, Visitor $visitor)
     {
-        return function ($offset) use ($node, $visitor) {
-            $newNode = new FunctionNode(
-                $node->getName(),
-                $node->getOperand(),
-                $node->getToken()
-            );
+        return new ClosureHelper($node, $visitor);
+    }
 
-            $newNode->setSkipExecution(true);
+    protected function quoteExpression(ExpressionNode $node, Visitor $visitor)
+    {
+        return new ExpressionWrapper($node, $visitor);
+    }
 
-            $item = $newNode->accept($visitor);
+    protected function hasFunctionX(ExpressionNode $node)
+    {
+        if ($node->getLeft() instanceof FunctionNode) {
+            return true;
+        }
 
-            return call_user_func_array($item, func_get_args());
-        };
+        if ($node->getRight() instanceof FunctionNode) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function skipExecutionForFunctions(ExpressionNode $node)
+    {
+        $left = $node->getLeft();
+        $right = $node->getRight();
+
+        if ($left instanceof FunctionNode) {
+            $left->setSkipExecution(true);
+        }
+
+        if ($right instanceof FunctionNode) {
+            $right->setSkipExecution(true);
+        }
     }
 
     /** Implementing the compareTo abstract method. */

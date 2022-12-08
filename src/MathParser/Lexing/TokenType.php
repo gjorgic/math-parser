@@ -81,6 +81,9 @@ final class TokenType
     /** Token represented a function name, e.g. 'sin' */
     const FunctionName = 200;
 
+    /** Token represented a function name, e.g. 'map' */
+    const HighOrderFunctionName = 250;
+
     /** Token represented a known constant, e.g. 'pi' */
     const Constant = 300;
 
