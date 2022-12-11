@@ -173,6 +173,7 @@ class Parser
                 // Push function applications or open parentheses `(` onto the operatorStack
             } elseif ($node instanceof FunctionNode) {
                 if ($lastNode instanceof ExpressionNode && (empty($tokens[$index + 1]) || $tokens[$index + 1]->getType() != TokenType::OpenParenthesis)) {
+                    // Next time explane what this condition means
                     $this->operandStack->push($node);
                 } else {
                     $this->operatorStack->push($node);
@@ -264,7 +265,18 @@ class Parser
     protected function handleExpression($node)
     {
         if ($node instanceof FunctionNode) {
-            return new ClosureNode($node);
+            // Na početku sam napravio logiku koja razlikuje sintaksu funkcije od sintakse closurea
+            // Funkcija uvijek ima zapis sa zagradama, dok, kada se koristi skraćeni zapis sa točkama tipa XAVGC10.15
+            // Onda takav zapis tretiramo kao closure, tako da odgodimo njegovo izvršavanje te da HighOrderFunkcija može koristit kao closure
+
+            // Po novome, ideja je sve tretirati kao funkcije, a onda ako želimo da neke funkcije ne budu evaluirane odmah
+            // Tada bi koristili HighOrderFunctionNode za funkcije tipa High Order Functions
+
+            // Ovo zadnje je razlog zašto radim ovu promijenu
+            // Implementacija HOF uspjela, ako ne koristiš HOF onda se
+            // evaluacija izvršava odmah, i nema delaya, ako koristiš HOF,
+            // onda parsamo argumente tvoje custom funkcije i injectano ClosureHelper
+            return $node;
         }
 
         if ($node instanceof SubExpressionNode) throw new ParenthesisMismatchException($node->getOperator());

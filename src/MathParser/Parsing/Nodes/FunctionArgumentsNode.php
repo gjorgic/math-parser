@@ -6,6 +6,23 @@ use MathParser\Interpreting\Visitors\Visitor;
 use MathParser\Classes\ClosureHelper;
 use MathParser\Classes\ExpressionWrapper;
 
+/**
+ * Ova klasa služi za grupiranje parametara neke funkcije
+ * kada se radi evaluacija, ova klasa radi wrapanje svih nodova tipa AbstractFunction sa evaluator
+ * helper wrapperom `ClosureHelper` koji se onda prosljeđuje HighOrderFunkciji na procesiranje
+ *
+ * Pošto prije nije postojao pojam HighOrderFunction, taj dio se riješavao na nivou implementacije funkcije u metodi ::resolveArguments
+ * tako da se odgovarajući argument wrapao sa ClosureNode klasom koja ima ulogu delajanja evaluacije
+ *
+ * Problem je taj, što se metoda ::resolveArguments poziva samo ako je expression funkcije u
+ * short obliku (bez zagrada) tipa XAVGC10,15
+ *
+ * Ako se koristi zapis funkcije sa zagradama onda su argumenti prethodno evaluirani, i upravo tu
+ * trebamo napraviti promijenu uvođenjem HighOrderFunkcije da možemo preventat izvršavanje funkcija bez znanja o kojoj se HighOrderFunkciji radi
+ *
+ * Možda bi dobrar pristup bio da ako je potpis funkcije HighOrderFunction da sve argumente ne izvršavamo već da ih wrapamo???
+ *
+ */
 class FunctionArgumentsNode extends Node
 {
     /**
@@ -42,12 +59,9 @@ class FunctionArgumentsNode extends Node
     {
         $inner = [];
         foreach ($this->value as $node) {
-            if ($node instanceof ExpressionNode) {
-                $this->skipExecutionForFunctions($node);
-            }
-
             $item = $node->accept($visitor);
             if ($item instanceof FunctionNode) {
+                throw new \Exception('Unexpected using of ClosureHelper function; see why this happen!');
                 $item = $this->quoteFunction($item, $visitor);
             }
 
