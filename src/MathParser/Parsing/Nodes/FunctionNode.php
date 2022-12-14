@@ -28,6 +28,15 @@ class FunctionNode extends Node
 
     protected $prevInstance;
 
+    /**
+     * This is function unique id
+     * It is used by visitor (Evaliuator) to cache instance if HistoryAware
+     * It MUST be accessed via method `getHash`
+     *
+     * @var string
+     */
+    protected $hash;
+
     /** Constructor, create a FunctionNode with given name and operand */
     function __construct($name, $operand, ?Token $token)
     {
@@ -121,6 +130,15 @@ class FunctionNode extends Node
     public function setPrevInstance($prevInstance)
     {
         $this->prevInstance = $prevInstance;
+    }
+
+    public function getHash()
+    {
+        if (!$this->hash) {
+            $this->hash = uniqid('', true);
+        }
+
+        return $this->hash;
     }
 
 }

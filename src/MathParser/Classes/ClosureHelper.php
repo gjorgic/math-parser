@@ -31,7 +31,13 @@ class ClosureHelper implements InvokableInterface
 
     public function __construct($node, Visitor $visitor)
     {
-        $node->setSkipExecution(true);
+        // Mislim da ovo više nije ni potrebno jer HOF logika ne izvršava neki node dok ne vidi tko ga je tražio
+        // Ipak je ovo potrebno jer sam za `XAVG(C, 10)` ovdje primio function node
+        // te je rezultat toga bio `Close` funkcija
+        // ako nema ovog flag-a onda je rezultat evaluacije numerička vrijednost
+
+        // Znači ipak nešto još fali u koracima
+        // $node->setSkipExecution(true);
 
         $this->node = $node;
         $this->visitor = $visitor;
@@ -39,7 +45,7 @@ class ClosureHelper implements InvokableInterface
 
     public function __invoke()
     {
-        $inner = $this->node->accept($this->visitor);
+        return $inner = $this->node->accept($this->visitor);
 
         if ($inner instanceof AcceptContextContract) {
             $inner->acceptContext($this->context);
@@ -58,5 +64,10 @@ class ClosureHelper implements InvokableInterface
     public function __call($name, $arguments)
     {
         return call_user_func_array([$this->node, $name], $arguments);
+    }
+
+    public function resetHistory()
+    {
+        $this->visitor->clearRememberedFunctions();
     }
 }
