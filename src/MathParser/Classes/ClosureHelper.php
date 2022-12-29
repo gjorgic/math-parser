@@ -45,6 +45,10 @@ class ClosureHelper implements InvokableInterface
 
     public function __invoke()
     {
+        if (func_num_args()) {
+            throw new \Exception('You must invoke ClosureHelper without any argument');
+        }
+
         return $inner = $this->node->accept($this->visitor);
 
         if ($inner instanceof AcceptContextContract) {

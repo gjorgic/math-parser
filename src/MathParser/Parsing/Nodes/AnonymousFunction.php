@@ -5,6 +5,7 @@ namespace MathParser\Parsing\Nodes;
 use MathParser\Interpreting\Visitors\Visitor;
 use MathParser\Lexing\Token;
 use MathParser\Parsing\Nodes\Interfaces\InvokableInterface;
+use MathParser\Parsing\Nodes\Interfaces\ContextInterface;
 
 class AnonymousFunction extends Node implements InvokableInterface
 {
@@ -29,7 +30,7 @@ class AnonymousFunction extends Node implements InvokableInterface
         return call_user_func_array($this->onInvoke, [$this->context]);
     }
 
-    public function acceptContext($context)
+    public function acceptContext(ContextInterface $context)
     {
         $this->context = $context;
 
