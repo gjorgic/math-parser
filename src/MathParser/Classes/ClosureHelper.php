@@ -3,10 +3,8 @@
 namespace MathParser\Classes;
 
 use MathParser\Interpreting\Visitors\Visitor;
-use MathParser\Parsing\Nodes\FunctionNode;
 use MathParser\Parsing\Nodes\Interfaces\AcceptContextContract;
-use MathParser\Parsing\Nodes\Interfaces\InvokableInterface;
-use MathParser\Parsing\Nodes\Node;
+use MathParser\Parsing\Nodes\Interfaces\FirstOrderFunctionInterface;
 
 /**
  * Ova klasa je neka vrsta evaluator wrappera za function node, dakle, umjesto da nekoj high order funkciji
@@ -21,7 +19,7 @@ use MathParser\Parsing\Nodes\Node;
  * biti nepoznato nestan; a mislim da referenciranje neće prouzročiti grešku u evaluaciji,
  * na to se mora paziti kod implementacije
  */
-class ClosureHelper implements InvokableInterface
+class ClosureHelper implements FirstOrderFunctionInterface
 {
     protected $node;
 
@@ -31,6 +29,7 @@ class ClosureHelper implements InvokableInterface
 
     public function __construct($node, Visitor $visitor)
     {
+        // @todo mislim da se ovi komentari mogu maknuti
         // Mislim da ovo više nije ni potrebno jer HOF logika ne izvršava neki node dok ne vidi tko ga je tražio
         // Ipak je ovo potrebno jer sam za `XAVG(C, 10)` ovdje primio function node
         // te je rezultat toga bio `Close` funkcija

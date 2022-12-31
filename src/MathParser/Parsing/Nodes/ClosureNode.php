@@ -23,7 +23,7 @@ class ClosureNode extends Node
 
     function __construct(FunctionNode $value)
     {
-        throw new \Exception('Not required any more???');
+        throw new \Exception('Is ClosureNode required any more???');
         $this->value = $value;
     }
 
