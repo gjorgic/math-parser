@@ -93,6 +93,7 @@ class NodeFactory {
         $this->divisionFactory = new DivisionNodeFactory();
         $this->exponentiationFactory = new ExponentiationNodeFactory();
         $this->logicalOrFactory =  new LogicalOrNodeFactory();
+        $this->logicalXorFactory =  new LogicalXorNodeFactory();
         $this->logicalAndFactory = new LogicalAndNodeFactory();
 
         $this->logicalGreaterThanEqualFactory = new LogicalGreaterThanEqualFactory();
@@ -183,6 +184,19 @@ class NodeFactory {
     }
 
     /**
+     * Create an logical XOR node representing '$leftOperand XOR $rightOperand'.
+     *
+     * @param mixed $leftOperand
+     * @param mixed $rightOperand
+     *
+     * @return ExpressionNode
+     */
+    public function logicalXor($leftOperand, $rightOperand)
+    {
+        return $this->logicalXorFactory->makeNode($leftOperand, $rightOperand);
+    }
+
+    /**
      * Create an logical AND node representing '$leftOperand AND $rightOperand'.
      *
      * @param mixed $leftOperand
@@ -263,7 +277,11 @@ class NodeFactory {
             case '/': return $this->division($node->getLeft(), $node->getRight());
             case '^': return $this->exponentiation($node->getLeft(), $node->getRight());
             case 'OR': return $this->logicalOr($node->getLeft(), $node->getRight());
+            case 'XOR': return $this->logicalXor($node->getLeft(), $node->getRight());
+            case 'NOR': return $this->makeExpression($node->getLeft(), 'NOR', $node->getRight());
+            case 'XNOR': return $this->makeExpression($node->getLeft(), 'XNOR', $node->getRight());
             case 'AND': return $this->logicalAnd($node->getLeft(), $node->getRight());
+            case 'NAND': return $this->makeExpression($node->getLeft(), 'NAND', $node->getRight());
             case '>=': return $this->logicalGreaterThanEqual($node->getLeft(), $node->getRight());
             case '>': return $this->logicalGreaterThan($node->getLeft(), $node->getRight());
             case '<=': return $this->logicalLowerThanEqual($node->getLeft(), $node->getRight());
@@ -271,6 +289,11 @@ class NodeFactory {
             case '=': return $this->logicalEqualTo($node->getLeft(), $node->getRight());
             case '!=': return $this->logicalNotEqualTo($node->getLeft(), $node->getRight());
         }
+    }
+
+    private function makeExpression($left, $operator, $right)
+    {
+        return new ExpressionNode($left, $operator, $right);
     }
 
 }

@@ -129,6 +129,7 @@ abstract class Node implements Visitable
             case TokenType::LogicalLowerThan:
             case TokenType::LogicalEqualTo:
             case TokenType::LogicalNotEqualTo:
+            case TokenType::LogicalAndOperator:
             case TokenType::LogicalOrOperator:
             case TokenType::AdditionOperator:
             case TokenType::SubtractionOperator:

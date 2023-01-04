@@ -108,7 +108,29 @@ class ExpressionNode extends Node
                 $this->associativity = self::LEFT_ASSOC;
                 break;
 
+            case 'XOR':
+                $this->precedence = 5;
+                $this->associativity = self::LEFT_ASSOC;
+                break;
+
+
+            case 'NOR':
+                $this->precedence = 5;
+                $this->associativity = self::LEFT_ASSOC;
+                break;
+
+
+            case 'XNOR':
+                $this->precedence = 5;
+                $this->associativity = self::LEFT_ASSOC;
+                break;
+
             case 'AND':
+                $this->precedence = 5;
+                $this->associativity = self::LEFT_ASSOC;
+                break;
+
+            case 'NAND':
                 $this->precedence = 5;
                 $this->associativity = self::LEFT_ASSOC;
                 break;

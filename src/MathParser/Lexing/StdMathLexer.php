@@ -126,7 +126,9 @@ class StdMathLexer extends Lexer
 
         $this->add(new TokenDefinition('/pi/', TokenType::Constant));
         $this->add(new TokenDefinition('/e/', TokenType::Constant));
-        $this->add(new TokenDefinition('/NAN/', TokenType::Constant));
+
+        // Move this from here and apply later after NAND because it is in conflict
+        // $this->add(new TokenDefinition('/NAN/', TokenType::Constant));
         $this->add(new TokenDefinition('/INF/', TokenType::Constant));
 
         // $this->add(new TokenDefinition('/[a-zA-Z]/', TokenType::Identifier));
