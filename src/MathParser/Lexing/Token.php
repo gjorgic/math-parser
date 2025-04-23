@@ -81,6 +81,11 @@ class Token
         return $this->value;
     }
 
+    public function getMatch()
+    {
+        return $this->match;
+    }
+
     /**
      * @property getType
      * Returns the type of the token, as defined in the TokenType class.

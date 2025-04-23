@@ -43,12 +43,23 @@ final class TokenType
     /** Token representing a floating point number */
     const RealNumber = 3;
 
+    const Boolean = 6;
+
     /** Token representing an identifier, i.e. a variable name. */
     const Identifier = 20;
     /** Token representing an opening parenthesis, i.e. '(' */
     const OpenParenthesis = 31;
     /** Token representing a closing parenthesis, i.e. ')' */
     const CloseParenthesis = 32;
+
+    const LogicalGreaterThanEqual = 84;
+    const LogicalGreaterThan = 85;
+    const LogicalLowerThanEqual = 86;
+    const LogicalLowerThan = 87;
+    const LogicalEqualTo = 88;
+    const LogicalNotEqualTo = 89;
+    const LogicalOrOperator = 90;
+    const LogicalAndOperator = 91;
 
     /** Token representing a unary minus. Not used. This is the responsibility of the Parser */
     const UnaryMinus = 99;
@@ -70,8 +81,13 @@ final class TokenType
     /** Token represented a function name, e.g. 'sin' */
     const FunctionName = 200;
 
+    /** Token represented a function name, e.g. 'map' */
+    const HighOrderFunctionName = 250;
+
     /** Token represented a known constant, e.g. 'pi' */
     const Constant = 300;
+
+    const ArgumentDivider = 997;
 
     /** Token representing a terminator, e.g. ';'. Currently not used. */
     const Terminator = 998;

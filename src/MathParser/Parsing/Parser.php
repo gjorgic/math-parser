@@ -34,6 +34,9 @@ use MathParser\Exceptions\SyntaxErrorException;
 use MathParser\Exceptions\ParenthesisMismatchException;
 
 use MathParser\Interpreting\PrettyPrinter;
+use MathParser\Parsing\Nodes\ArgumentDividerNode;
+use MathParser\Parsing\Nodes\ClosureNode;
+use MathParser\Parsing\Nodes\FunctionArgumentsNode;
 
 /**
 * Mathematical expression parser, based on the shunting yard algorithm.
@@ -116,6 +119,7 @@ class Parser
 
         $this->tokens = $tokens;
 
+
         // Perform the actual parsing
         return $this->shuntingYard($tokens);
     }
@@ -164,9 +168,17 @@ class Parser
 
                 // Push function applications or open parentheses `(` onto the operatorStack
             } elseif ($node instanceof FunctionNode) {
+                if ($lastNode instanceof ExpressionNode && (empty($tokens[$index + 1]) || $tokens[$index + 1]->getType() != TokenType::OpenParenthesis)) {
+                    // Next time explane what this condition means
+                    $this->operandStack->push($node);
+                } else {
+                    $this->operatorStack->push($node);
+                }
+            } elseif ($node instanceof SubExpressionNode) {
                 $this->operatorStack->push($node);
 
-            } elseif ($node instanceof SubExpressionNode) {
+                // Handle the remaining operators.
+            } elseif ($node instanceof ArgumentDividerNode) {
                 $this->operatorStack->push($node);
 
                 // Handle the remaining operators.
@@ -176,6 +188,15 @@ class Parser
                 $this->operandStack->push(new FunctionNode($node->getOperator(), $op));
 
             } elseif ($node instanceof ExpressionNode) {
+                // Znači ako se prije ovoga zatvorila zagrada od funkcije, otišli smo u drugu metodu napraviti funkciju sa argumentima
+                // Ondje se nakon zabršetka ta funkcija miče iz operatora i prebacijue u operand
+                // Problem možda može nastupiti ako u operator stacku postoji još jedan unos tipa funkcije
+                // Tada bi on greškom bio skinut, možda koristiti dodatnu varijablu da znamo odakle smo došli????
+                if ($lastNode instanceof FunctionNode && $this->operatorStack->peek() && $this->operatorStack->peek()->compareTo($lastNode)) {
+                    $operator = $this->operatorStack->pop();
+
+                    $this->operandStack->push($operator);
+                }
 
                 // Check for unary minus and unary plus.
                 $unary = $this->isUnary($node, $lastNode);
@@ -202,7 +223,10 @@ class Parser
                     }
                 }
 
-                if ($node) $this->operatorStack->push($node);
+                if ($node) {
+                    $this->operatorStack->push($node);
+                }
+
             }
 
             // Remember the current token (if it hasn't been nulled, for example being a unary +)
@@ -236,7 +260,21 @@ class Parser
     */
     protected function handleExpression($node)
     {
-        if ($node instanceof FunctionNode) throw new ParenthesisMismatchException($node->getOperator());
+        if ($node instanceof FunctionNode) {
+            // Na početku sam napravio logiku koja razlikuje sintaksu funkcije od sintakse closurea
+            // Funkcija uvijek ima zapis sa zagradama, dok, kada se koristi skraćeni zapis sa točkama tipa XAVGC10.15
+            // Onda takav zapis tretiramo kao closure, tako da odgodimo njegovo izvršavanje te da HighOrderFunkcija može koristit kao closure
+
+            // Po novome, ideja je sve tretirati kao funkcije, a onda ako želimo da neke funkcije ne budu evaluirane odmah
+            // Tada bi koristili HighOrderFunctionNode za funkcije tipa High Order Functions
+
+            // Ovo zadnje je razlog zašto radim ovu promijenu
+            // Implementacija HOF uspjela, ako ne koristiš HOF onda se
+            // evaluacija izvršava odmah, i nema delaya, ako koristiš HOF,
+            // onda parsamo argumente tvoje custom funkcije i injectano ClosureHelper
+            return $node;
+        }
+
         if ($node instanceof SubExpressionNode) throw new ParenthesisMismatchException($node->getOperator());
 
         if (!$this->simplifyingParser) return $this->naiveHandleExpression($node);
@@ -412,6 +450,7 @@ class Parser
     {
         // Flag, checking for mismatching parentheses
         $clean = false;
+        $operands = [];
 
         // Pop operators off the operatorStack until its empty, or
         // we find an opening parenthesis, building subexpressions
@@ -424,9 +463,17 @@ class Parser
                 break;
             }
 
-            $node = $this->handleExpression($popped);
-            $this->operandStack->push($node);
+            // On ovdje nebi smio izvršavati (raditi simplify) ako je prethodno pokrenut/otvoren Argument divider
+            // Znači ako je posljednji item argument divider, onda sve trebamo trpati na stock as is
 
+            // MOžda ima smisla da možeš raditi simplify samo ako oba operanda nisu funkcije
+            if (!$popped instanceof ArgumentDividerNode) {
+                $node = $this->handleExpression($popped);
+                $this->operandStack->push($node);
+                continue;
+            }
+
+            array_unshift($operands, $this->operandStack->pop());
         }
 
         // Throw an error if the parenthesis couldn't be matched
@@ -441,8 +488,13 @@ class Parser
         $previous = $this->operatorStack->peek();
         if ($previous instanceof FunctionNode) {
             $node = $this->operatorStack->pop();
-            $operand = $this->operandStack->pop();
-            $node->setOperand($operand);
+            if ($this->operandStack->count()) {
+                array_unshift($operands, $this->operandStack->pop());
+            }
+            $node->setOperand(new FunctionArgumentsNode($operands));
+            $this->operandStack->push($node);
+        } else {
+            $node = new SubExpressionNode($this->operandStack->pop());
             $this->operandStack->push($node);
         }
     }

@@ -17,6 +17,7 @@ namespace MathParser\Parsing\Nodes;
 use MathParser\Interpreting\ASCIIPrinter;
 use MathParser\Interpreting\Evaluator;
 use MathParser\Interpreting\Visitors\Visitable;
+use MathParser\Lexing\CustomExpressionToken;
 use MathParser\Lexing\Token;
 use MathParser\Lexing\TokenType;
 
@@ -59,7 +60,7 @@ abstract class Node implements Visitable
                 return new ConstantNode($token->getValue());
 
             case TokenType::FunctionName:
-                return new FunctionNode($token->getValue(), null);
+                return new FunctionNode($token->getValue(), new FunctionArgumentsNode([]), $token);
             case TokenType::OpenParenthesis:
                 return new SubExpressionNode($token->getValue());
 
@@ -91,6 +92,10 @@ abstract class Node implements Visitable
      */
     public static function factory(Token $token)
     {
+        if ($token instanceof CustomExpressionToken) {
+            return $token->makeNode();
+        }
+
         switch ($token->getType()) {
             case TokenType::PosInt:
             case TokenType::Integer:
@@ -101,16 +106,31 @@ abstract class Node implements Visitable
                 $x = floatval(str_replace(',', '.', $token->getValue()));
 
                 return new NumberNode($x);
+            case TokenType::Boolean:
+                return new BooleanNode(filter_var($token->getValue(), FILTER_VALIDATE_BOOLEAN));
             case TokenType::Identifier:
                 return new VariableNode($token->getValue());
             case TokenType::Constant:
                 return new ConstantNode($token->getValue());
 
+            case TokenType::ArgumentDivider:
+                return new ArgumentDividerNode($token->getValue());
+
             case TokenType::FunctionName:
-                return new FunctionNode($token->getValue(), null);
+                return new FunctionNode($token->getValue(), new FunctionArgumentsNode([]), $token);
+            case TokenType::HighOrderFunctionName:
+                return new HigherOrderFunctionNode($token->getValue(), new FunctionArgumentsNode([]), $token);
             case TokenType::OpenParenthesis:
                 return new SubExpressionNode($token->getValue());
 
+            case TokenType::LogicalGreaterThanEqual:
+            case TokenType::LogicalGreaterThan:
+            case TokenType::LogicalLowerThanEqual:
+            case TokenType::LogicalLowerThan:
+            case TokenType::LogicalEqualTo:
+            case TokenType::LogicalNotEqualTo:
+            case TokenType::LogicalAndOperator:
+            case TokenType::LogicalOrOperator:
             case TokenType::AdditionOperator:
             case TokenType::SubtractionOperator:
             case TokenType::MultiplicationOperator:

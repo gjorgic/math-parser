@@ -66,8 +66,12 @@ class AdditionNodeFactory implements ExpressionNodeFactory
     */
     protected function numericTerms($leftOperand, $rightOperand)
     {
-        if ($this->isNumeric($leftOperand) && $leftOperand->getValue() == 0) return $rightOperand;
-        if ($this->isNumeric($rightOperand) && $rightOperand->getValue() == 0) return $leftOperand;
+        if ($this->isNumeric($leftOperand) && $leftOperand->getValue() == 0){
+            return $rightOperand;
+        }
+        if ($this->isNumeric($rightOperand) && $rightOperand->getValue() == 0){
+            return $leftOperand;
+        }
 
         if (!$this->isNumeric($leftOperand) || !$this->isNumeric($rightOperand)) {
             return null;

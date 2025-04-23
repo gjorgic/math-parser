@@ -123,14 +123,15 @@ class StdMathLexer extends Lexer
 
         // Postfix operators
         $this->add(new TokenDefinition('/\!\!/', TokenType::SemiFactorialOperator));
-        $this->add(new TokenDefinition('/\!/', TokenType::FactorialOperator));
 
         $this->add(new TokenDefinition('/pi/', TokenType::Constant));
         $this->add(new TokenDefinition('/e/', TokenType::Constant));
-        $this->add(new TokenDefinition('/NAN/', TokenType::Constant));
+
+        // Move this from here and apply later after NAND because it is in conflict
+        // $this->add(new TokenDefinition('/NAN/', TokenType::Constant));
         $this->add(new TokenDefinition('/INF/', TokenType::Constant));
 
-        $this->add(new TokenDefinition('/[a-zA-Z]/', TokenType::Identifier));
+        // $this->add(new TokenDefinition('/[a-zA-Z]/', TokenType::Identifier));
 
         $this->add(new TokenDefinition('/\n/', TokenType::Terminator));
         $this->add(new TokenDefinition('/\s+/', TokenType::Whitespace));
